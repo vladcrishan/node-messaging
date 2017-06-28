@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Node Messaging</title>
+	<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+
+	<!-- CSS -->
+	<style>
+		body {
+			background-color: #778899;
+			font-family: 'Montserrat', sans-serif;
+		}
+
+		h1 {
+			color: #fff;
+			margin-left: 1em;
+			text-align: center;
+		}
+
+		#message {
+			font-size: 13px;
+			color: #fff;
+			display:inline-block;
+			background-color: #778899;
+			border: 3px solid #778899;
+			border-radius: 15px;
+			padding: 5px;
+			margin: 5px 0px 0px 10px;
+		}
+
+		#name {
+			color: #a3aeba;
+			font-weight: bold;
+			padding: 5px;
+			margin: 5px 0px 0px 10px;	
+		}
+
+		div {
+			
+			background-color: #fff;
+			/*include border in box*/
+			box-sizing: border-box;
+		}
+
+		#container {
+			margin: 0 auto;
+			height: 40em;
+			width: 55em;
+		}
+
+		#left {
+			/*background-color: red;*/
+			border: 1px solid #e7eaed;
+			height: 100%;
+			width: 25%;
+			float:left;
+		}
+
+		#right {
+			/*background-color: blue;*/
+			border: 1px solid #e7eaed;
+			width: 75%;
+			height: 90%;
+			float:right;
+			overflow-y: auto;
+		}
+
+		#bottom {
+			/*background-color: green;*/
+			border: 1px solid #e7eaed;
+			width: 75%;
+			height: 10%;
+			float:right;
+		}
+
+		#bottom_left {
+			/*background-color: orange;*/
+			width: 80%;
+			height: 100%;
+			float:left;
+		}
+
+		#bottom_right {
+			/*background-color: violet;*/
+			width: 20%;
+			height: 100%;
+			float:right;
+
+			/*center everything in it*/
+			display: flex;
+			justify-content: center;
+			align-items: center; 
+		}
+
+		input {
+			border-style: none;
+
+			/*include that padding in the box*/
+			box-sizing: border-box;
+			padding-left: 1em;
+
+			height: 100%;
+			width: 100%;			
+		}
+
+		/* Text size */
+		input[type="text"]
+		{
+			font-size:26px;
+		}
+
+		#NMButton {
+			background-color: #cd5c5c;
+			color: #fff;
+			font-family: ubuntu;
+			/*height: 70%;*/
+			/*width: 90%;*/
+			font-size: 1em;
+			cursor: pointer;
+		}
+
+		#NMButton:hover {
+			background-color: #c74848
+		}
+
+	</style>
+
+</head>
+<body>
+	<h1>Node.js Messagging App</h1>
+
+	<div id="container">
+		<div id="left">
+			<!-- <div><p id='name'>Zorro</p></div> -->
+		</div>
+		<div id="right">
+			<!-- <div><p id='message'>bla bla</p></div>
+			<div><p id='message'>hapciu</p></div> -->
+		</div>
+		<div id="bottom">		
+			<div id="bottom_left">
+				<input type="text" id="NMText" placeholder="Input text..." />
+			</div>
+			<div id="bottom_right">
+				<input type="button" id="NMButton" value="send" />
+			</div>
+		</div>
+	</div>
+
+	<!-- JAVASCRIPT -->
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<script>
+		var socket = io.connect('http://10.10.10.78:3000');
+
+		// First thing on connect, prompt for username
+		var username = prompt("What is your name?");
+		socket.emit('join',username);
+		
+		$('#NMText').focus();
+
+		// Push send
+		$('#NMButton').on('click', function(event){			
+			send();
+			$('#NMText').focus();
+		});		
+
+		// Enter
+		$('#NMText').on('keypress', function(event){
+			var code = event.keyCode || event.which;
+			if(code === 13){
+				send();
+				event.preventDefault();
+			}
+		});
+
+		//// Event Handlers
+		socket.on('join', function(username){
+			$('#left').append('<div><p id="name">' + username + '</p></div>');
+		});
+
+		socket.on('messages', function(data){
+			insertMessage(data);
+		});
+
+		socket.on('leave', function(user){			
+			$('p[id^="name"]').each(function(index, value){
+				if(user == value.textContent){					
+					this.remove();
+				}
+			});
+		});
+
+		function send(message){
+			var message = $('#NMText').val();
+			$('#NMText').val('');
+			socket.emit('messages', message);
+		}
+
+		function insertMessage(message){
+			$('#right').append('<div><p id="message">' + message + '</p></div>');
+
+			// Scroll down with text
+			// var rightDiv = $('#right');
+			// rightDiv.scrollTop = -rightDiv[0].scrollHeight;
+		}
+
+	</script>
+
+</body>
+</html>
