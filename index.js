@@ -25,6 +25,7 @@ io.on('connection', function(socket){
 
 		// Show to all that I've connected. Add my username in their list
 		socket.broadcast.emit('join', socket.username);
+		
 		// Add all of them to my username list
 		users.forEach(function(user) {
 			socket.emit("join", user);
@@ -41,20 +42,19 @@ io.on('connection', function(socket){
 
 	// Handler the 'messages' event from the client
 	socket.on('messages', function(data){
+        var username = socket.username;
 
-		var username = socket.username;
+        // When you broadcast a message as a result of an event from a socket.
+        // The message is emitted to all connected clients except for the socket who triggered the event.
+        socket.broadcast.emit('messages', username + ": " + data);
 
-		// When you broadcast a message as a result of an event from a socket.
-		// The message is emitted to all connected clients except for the socket who triggered the event.
-		socket.broadcast.emit('messages', username + ": " + data);
+        // Send the same message back to our client
+        socket.emit('messages', username + ": " + data);
 
-		// Send the same message back to our client 
-		socket.emit('messages', username + ": " + data);
+        // Store messages
+        storeMessage(socket.username, data);
 
-		// Store messages
-		storeMessage(socket.username, data);
-
-		console.log('This will be broadcasted: ' + data);
+        console.log('This will be broadcasted: ' + data);
 	});
 
 	socket.on('disconnect', function(){
@@ -68,7 +68,7 @@ app.get('/', function (req,res){
 	res.sendFile(__dirname + '/index.html');
 });
 
-server.listen(3000);
+server.listen(8080);
 
 
 

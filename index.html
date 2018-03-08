@@ -112,7 +112,6 @@
 		#NMButton {
 			background-color: #cd5c5c;
 			color: #fff;
-			font-family: ubuntu;
 			/*height: 70%;*/
 			/*width: 90%;*/
 			font-size: 1em;
@@ -151,7 +150,7 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 	<script>
-		var socket = io.connect('http://10.10.10.78:3000');
+		var socket = io.connect('http://10.10.10.78:8080');
 
 		// First thing on connect, prompt for username
 		var username = prompt("What is your name?");
